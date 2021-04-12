@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interval</title>
+    <script>
+        const times = []
+        const draw = m => {
+            window.requestAnimationFrame(draw)
+            document.getElementById('output').innerText = times.length.toString()
+        }
+        window.onload = e => {
+            window.requestAnimationFrame(draw)
+            setInterval(() => {
+                times.push(new Date().getTime())
+            }, 0)
+        }
+    </script>
+</head>
+<body>
+<p id="output"></p>
+<button onclick="alert(1234)">Alles werkt nog</button>
+</body>
+</html>

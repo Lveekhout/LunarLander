@@ -1,0 +1,12 @@
+body {
+    background-color: bisque;
+}
+
+#canvas {
+    background-color: grey;
+}
+
+#textarea {
+    width: 260px;
+    height: 800px;
+}
