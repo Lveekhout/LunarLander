@@ -1,18 +1,20 @@
 function World(lander) {
-    let duur
-    let start
+
+    let scale = 20
     let current
     let frameReq
 
     const gravity = 9.81 / 2 / 6
+    const animationCallbacks = []
 
     const animate = milli => {
         const dtm = milli - current // DeltaTimeMilliseconds
         const dts = dtm / 1000      // DeltaTimeSeconds
         current = milli
 
-        lander.draw()
+        lander.draw(scale)
         frameReq = window.requestAnimationFrame(animate)
+        animationCallbacks.forEach(f => f())
         lander.update(dts)
     }
 
@@ -22,16 +24,15 @@ function World(lander) {
     }
 
     this.startAnimation = () => {
-        duur = performance.now()
         frameReq = window.requestAnimationFrame(initAnimate)
     }
 
     this.stopAnimation = () => {
-        console.log('duur = ' + (performance.now() - duur))
-        console.log('start = ' + (current - start))
         window.cancelAnimationFrame(frameReq)
-        // document.getElementById("textarea").value = null
     }
+
+    this.addAnimationCallbackCallback = f => animationCallbacks.push(f)
+    this.setScale = value => scale = value
 
     lander.setGravity(gravity)
 

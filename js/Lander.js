@@ -1,8 +1,7 @@
-function Lander(canvas, textarea) {
+function Lander(canvas) {
     const ctx = canvas.getContext('2d')
 
     let gravity = 0
-    let scale = 20
     let lander = new Image()
     let com = [291, 150]                   // center of mass in pixels
     this.rotate = [0, 0]                   // [speed, angle]
@@ -14,38 +13,43 @@ function Lander(canvas, textarea) {
     let leftThruster = 0
     let rightThruster = 0
 
-    this.draw = () => {
+    this.draw = scale => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         ctx.save()
         ctx.translate(canvas.width / 2, canvas.height)
 
-        const info = {
-            alt: {
-                acc: landerAltitude[0].toFixed(4),
-                vel: landerAltitude[1].toFixed(4),
-                pos: landerAltitude[2].toFixed(4)
-            },
-            lat: {
-                acc: landerLatitude[0].toFixed(4),
-                vel: landerLatitude[1].toFixed(4),
-                pos: landerLatitude[2].toFixed(4)
-            },
-            rot: {
-                acc: (rightThruster-leftThruster).toFixed(4),
-                vel: this.rotate[0].toFixed(4),
-                agl: this.rotate[1].toFixed(4)
-            },
-            impact: {
-                D: prediction()[0].toFixed(4),
-                t: prediction()[1].toFixed(4)
-            }
-        }
-        textarea.value = JSON.stringify(info, null, 2)
-
         {
             ctx.save()
             ctx.scale(scale, scale)
+            {
+                for (let t=0; t<8;t+=0.1) {
+                    const accLatitude = landerLatitude[0] * Math.sin(this.rotate[1])
+                    let x = accLatitude * Math.pow(t, 2) + landerLatitude[1] * t + landerLatitude[2]
+
+                    const accAltitude = -gravity * Math.cos(this.rotate[1])
+                    let y = landerAltitude[0] * Math.pow(t, 2) + landerAltitude[1] * t + landerAltitude[2]
+
+                    ctx.beginPath()
+                    ctx.arc(x, -y, .2, 0, Math.PI*2)
+                    ctx.fillStyle = "cyan"
+                    ctx.fill()
+                }
+            }
+            {
+                for (let t=0; t<8;t+=0.1) {
+                    const accLatitude = landerLatitude[0] - mainThruster * Math.sin(this.rotate[1])
+                    let x = accLatitude * Math.pow(t, 2) + landerLatitude[1] * t + landerLatitude[2]
+
+                    const accAltitude = -gravity + mainThruster * Math.cos(this.rotate[1])
+                    let y = landerAltitude[0] * Math.pow(t, 2) + landerAltitude[1] * t + landerAltitude[2]
+
+                    ctx.beginPath()
+                    ctx.arc(x, -y, .2, 0, Math.PI*2)
+                    ctx.fillStyle = "blue"
+                    ctx.fill()
+                }
+            }
             ctx.translate(landerLatitude[2], -landerAltitude[2])
             ctx.rotate(-this.rotate[1])
             {
@@ -117,8 +121,30 @@ function Lander(canvas, textarea) {
     this.activateRightThruster = () => rightThruster = .5
     this.deactivateRightThruster = () => rightThruster = 0
 
-    this.setGravity = value => {
-        gravity = value
+    this.setGravity = value => gravity = value
+
+    this.getInfo = () => {
+        return {
+            alt: {
+                acc: landerAltitude[0].toFixed(4),
+                vel: landerAltitude[1].toFixed(4),
+                pos: landerAltitude[2].toFixed(4)
+            },
+            lat: {
+                acc: landerLatitude[0].toFixed(4),
+                vel: landerLatitude[1].toFixed(4),
+                pos: landerLatitude[2].toFixed(4)
+            },
+            rot: {
+                acc: (rightThruster-leftThruster).toFixed(4),
+                vel: this.rotate[0].toFixed(4),
+                agl: this.rotate[1].toFixed(4)
+            },
+            impact: {
+                D: prediction()[0].toFixed(4),
+                t: prediction()[1].toFixed(4)
+            }
+        }
     }
 
     this.belowSurface

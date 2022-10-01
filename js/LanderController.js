@@ -1,13 +1,23 @@
 function LanderController(lander) {
     let autoThrustActive = false
-    let handler
+    let request
 
     this.manualOverrideLeftThruster = () => {
         autoThrustActive = true
+        if (request) {
+            clearTimeout(request)
+            request = undefined
+            lander.deactivateRightThruster()
+        }
         lander.activateLeftThruster()
     }
     this.manualOverrideRightThruster = () => {
         autoThrustActive = true
+        if (request) {
+            clearTimeout(request)
+            request = undefined
+            lander.deactivateLeftThruster()
+        }
         lander.activateRightThruster()
     }
     this.manualStopLeftThruster = () => {
@@ -17,20 +27,6 @@ function LanderController(lander) {
     this.manualStopRightThruster = () => {
         autoThrustActive = false
         lander.deactivateRightThruster()
-    }
-
-    const startAutocorrect = goal => {
-        this.thrust(goal)
-        handler = setTimeout(startAutocorrect, 100)
-    }
-
-    this.startAutocorrect = goal => {
-        startAutocorrect(goal)
-    }
-
-    this.stopAutocorrect = () => {
-        if (handler) clearTimeout(handler)
-        handler = undefined
     }
 
     // a*x*x+b*x+c
@@ -64,10 +60,10 @@ function LanderController(lander) {
     const timedLeftThruster = (right, zero) => {
         autoThrustActive = true
         lander.activateLeftThruster()
-        setTimeout(() => {
+        request = setTimeout(() => {
             lander.deactivateLeftThruster()
             lander.activateRightThruster()
-            setTimeout(() => {
+            request = setTimeout(() => {
                 lander.deactivateRightThruster()
                 autoThrustActive = false
             }, zero)
@@ -77,10 +73,10 @@ function LanderController(lander) {
     const timedRightThruster = (left, zero) => {
         autoThrustActive = true
         lander.activateRightThruster()
-        setTimeout(() => {
+        request = setTimeout(() => {
             lander.deactivateRightThruster()
             lander.activateLeftThruster()
-            setTimeout(() => {
+            request = setTimeout(() => {
                 lander.deactivateLeftThruster()
                 autoThrustActive = false
             }, zero)
